@@ -3,6 +3,7 @@ let preGame = true;
 let blueTurn = false;
 let redTurn = false;
 let gameNumber = 1;
+let playCounter = 0;
 
 //Grabbing game area from DOM
 const gameArea = document.getElementById('tic-tac-toe-board');
@@ -76,6 +77,7 @@ function markBoard(clickedBox) {
   if (clickedBox.textContent !== '') {
     //Displays error message if player attempts to play a spot that has already been played
     outcome.textContent = 'Play Somewhere Else';
+    return;
   } else {
     //Clears an error message if exists
     outcome.textContent = '';
@@ -87,22 +89,33 @@ function markBoard(clickedBox) {
       //Updates playing board key with proper value
       playingBoard[mark] = 'X';
       if (playingBoard.checkForWinner()) {
-        someoneWon(`The Red X's have won the game!!`, 'red-shadow');
-      } else {
-        isBlueTurn();
-        //end of red turn tree
+        return someoneWon(`The Red X's have won the game!!`, 'red-shadow');
       }
     } else {
       clickedBox.classList.add('blue-o');
       document.getElementById(clickedBox.id).textContent = 'O';
       playingBoard[mark] = 'O';
       if (playingBoard.checkForWinner()) {
-        someoneWon(`The Blue O's have won the game!!`, 'blue-shadow');
-      } else {
-        isRedTurn();
-        //end of blue turn tree
+        return someoneWon(`The Blue O's have won the game!!`, 'blue-shadow');
       }
     }
+  }
+  nextTurn();
+}
+
+function nextTurn() {
+  //Check our play counter. If all plays have been made and there is no winner, display message of tie game and add end of game code.
+  playCounter++;
+  if (playCounter === 9) {
+    outcome.textContent = 'Tie Game!!';
+    //Set color back to neutral
+    gameArea.classList.remove('red');
+    gameArea.classList.remove('blue');
+    endGame();
+  } else if (redTurn) {
+    isBlueTurn();
+  } else if (blueTurn) {
+    isRedTurn();
   }
 }
 
@@ -130,16 +143,21 @@ function startGame() {
 }
 
 function someoneWon(message, classSelect) {
-  //Disable any more clicks
-  gameArea.removeEventListener('click', clickBox);
   //Alert which team has won
   outcome.textContent = message;
   outcome.className = classSelect;
+  endGame();
+}
+
+function endGame() {
+  //Disable any more clicks
+  gameArea.removeEventListener('click', clickBox);
   //Make a button appear in body
   let playAgainButton = document.createElement('button');
   body.appendChild(playAgainButton);
   playAgainButton.textContent = 'Play Again';
   playAgainButton.addEventListener('click', resetGame);
+  playCounter = 0;
 }
 
 function resetGame() {
