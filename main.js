@@ -47,6 +47,11 @@ const playingBoard = {
       }
     }
   },
+  resetBoard: function () {
+    for (let i = 1; i < 10; i++) {
+      this['spot' + i] = i;
+    }
+  },
 };
 
 //Setting event listener on game area to listen for a click
@@ -69,8 +74,11 @@ function clickBox(event) {
 function markBoard(clickedBox) {
   //Targets child element.id
   if (clickedBox.textContent !== '') {
-    alert('This spot has already been played. Choose another spot');
+    //Displays error message if player attempts to play a spot that has already been played
+    outcome.textContent = 'Play Somewhere Else';
   } else {
+    //Clears an error message if exists
+    outcome.textContent = '';
     let mark = clickedBox.id;
     if (redTurn) {
       //Adds X and proper color class, according to the id of the target that was clicked
@@ -131,4 +139,33 @@ function someoneWon(message, classSelect) {
   let playAgainButton = document.createElement('button');
   body.appendChild(playAgainButton);
   playAgainButton.textContent = 'Play Again';
+  playAgainButton.addEventListener('click', resetGame);
+}
+
+function resetGame() {
+  //Reset values of Playing Board Object
+  playingBoard.resetBoard();
+  //Set color back to neutral
+  gameArea.classList.remove('red');
+  gameArea.classList.remove('blue');
+  //Erase All Xs and Os, and set color back to black
+  for (let i = 1; i < 10; i++) {
+    let square = document.getElementById('spot' + i);
+    square.textContent = '';
+    square.classList.remove('red-x');
+    square.classList.remove('blue-o');
+  }
+  //Return starting button
+  let startButton = document.querySelector('#spot5');
+  startButton.classList.add('starting-spot');
+  startButton.textContent = 'START';
+  //Erase Outcome Message
+  outcome.textContent = '';
+  outcome.className = '';
+  //Remove Button
+  let playAgainButton = document.querySelector('button');
+  playAgainButton.remove();
+  //re-add event listener
+  gameArea.addEventListener('click', clickBox);
+  preGame = true;
 }
