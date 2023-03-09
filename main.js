@@ -1,3 +1,10 @@
+//Setting global variables for different game phases
+let preGame = true;
+let blueTurn = false;
+let redTurn = false;
+let gameNumber = 1;
+
+//Grabbing game area from DOM
 const gameArea = document.getElementById('tic-tac-toe-board');
 
 const playingBoard = {
@@ -10,33 +17,75 @@ const playingBoard = {
   spot7: '7',
   spot8: '8',
   spot9: '9',
-  winningConditions: {
-    //Line 15 comes back as false
-    topRow: this.spot1 === this.spot2 && this.spot1 === this.spot3,
-    middleRow: this.spot4 === this.spot5 && this.spot4 === this.spot6,
-    bottomRow: this.spot7 === this.spot8 && this.spot7 === this.spot9,
-    leftColumn: this.spot1 === this.spot4 && this.spot1 === this.spot7,
-    middleColumn: this.spot2 === this.spot5 && this.spot2 === this.spot8,
-    rightColumn: this.spot3 === this.spot6 && this.spot3 === this.spot9,
-    diagonal1: this.spot1 === this.spot5 && this.spot1 === this.spot9,
-    diagonal2: this.spot7 === this.spot5 && this.spot7 === this.spot3,
-  },
+  winningConditions: [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9],
+    [1, 5, 9],
+    [7, 5, 3],
+  ],
   checkForWinner: function () {
-    ///Line 26 comes back as true
-    console.log(this.spot1 === this.spot2 && this.spot1 === this.spot3);
-    for (condition in this.winningConditions) {
-      if (this.winningConditions[condition] === true) {
-        alert('Winner');
+    for (condition of this.winningConditions) {
+      //For each winning condition, will set the three positions as arguments to be compared to each other. If all three match, we have a Tic Tac Toe!
+      let arg1 = this['spot' + condition[0]];
+      let arg2 = this['spot' + condition[1]];
+      let arg3 = this['spot' + condition[2]];
+      if (arg1 === arg2 && arg1 === arg3) {
+        return true;
       }
     }
   },
 };
 
-//Setting variables for different game phases
-let preGame = true;
-let blueTurn = false;
-let redTurn = false;
-let gameNumber = 1;
+//Setting event listener on game area to listen for a click
+gameArea.addEventListener('click', (event) => {
+  const clickedBox = event.target;
+  if (preGame === true) {
+    if (clickedBox.id === 'spot5') {
+      clickedBox.classList.remove('starting-spot');
+      clickedBox.textContent = '';
+      startGame();
+    }
+  } else {
+    markBoard(clickedBox);
+  }
+});
+
+//Function run on each click to mark X or O and check for winner
+function markBoard(clickedBox) {
+  //Targets child element.id
+  if (clickedBox.textContent !== '') {
+    alert('This spot has already been played. Choose another spot');
+  } else {
+    let mark = clickedBox.id;
+    if (redTurn) {
+      //Adds X and proper color class, according to the id of the target that was clicked
+      clickedBox.classList.add('red-x');
+      document.getElementById(clickedBox.id).textContent = 'X';
+      //Updates playing board key with proper value
+      playingBoard[mark] = 'X';
+      if (playingBoard.checkForWinner()) {
+        setTimeout(() => {
+          alert('Red Team Wins!');
+        }, 0);
+      }
+      isBlueTurn();
+    } else {
+      clickedBox.classList.add('blue-o');
+      document.getElementById(clickedBox.id).textContent = 'O';
+      playingBoard[mark] = 'O';
+      if (playingBoard.checkForWinner()) {
+        setTimeout(() => {
+          alert('Blue Team Wins!');
+        }, 0);
+      }
+      isRedTurn();
+    }
+  }
+}
 
 function isRedTurn() {
   blueTurn = false;
@@ -60,35 +109,3 @@ function startGame() {
   }
   preGame = false;
 }
-
-function markBoard(clickedBox) {
-  let mark = clickedBox.id;
-  if (redTurn) {
-    clickedBox.classList.add('red-x');
-    document.getElementById(clickedBox.id).textContent = 'X';
-    playingBoard[mark] = 'X';
-    console.log(playingBoard);
-    playingBoard.checkForWinner();
-    isBlueTurn();
-  } else {
-    clickedBox.classList.add('blue-o');
-    document.getElementById(clickedBox.id).textContent = 'O';
-    playingBoard[mark] = 'O';
-    console.log(playingBoard);
-    playingBoard.checkForWinner();
-    isRedTurn();
-  }
-}
-
-gameArea.addEventListener('click', (event) => {
-  const clickedBox = event.target;
-  if (preGame === true) {
-    if (clickedBox.id === 'spot5') {
-      clickedBox.classList.remove('starting-spot');
-      clickedBox.textContent = '';
-      startGame();
-    }
-  } else {
-    markBoard(clickedBox);
-  }
-});
