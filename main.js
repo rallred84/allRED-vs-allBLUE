@@ -6,6 +6,10 @@ let gameNumber = 1;
 
 //Grabbing game area from DOM
 const gameArea = document.getElementById('tic-tac-toe-board');
+//Grabbing body area from DOM (to later append button to)
+const body = document.querySelector('body');
+//Grabbing outcome announcement from DOM
+const outcome = document.querySelector('#outcome-announcement');
 
 const playingBoard = {
   spot1: '1',
@@ -18,6 +22,11 @@ const playingBoard = {
   spot8: '8',
   spot9: '9',
   winningConditions: [
+    //Tic Tac Toe board laid out as follows:
+    // 1 2 3
+    // 4 5 6
+    // 7 8 9
+
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
@@ -41,7 +50,9 @@ const playingBoard = {
 };
 
 //Setting event listener on game area to listen for a click
-gameArea.addEventListener('click', (event) => {
+gameArea.addEventListener('click', clickBox);
+
+function clickBox(event) {
   const clickedBox = event.target;
   if (preGame === true) {
     if (clickedBox.id === 'spot5') {
@@ -52,7 +63,7 @@ gameArea.addEventListener('click', (event) => {
   } else {
     markBoard(clickedBox);
   }
-});
+}
 
 //Function run on each click to mark X or O and check for winner
 function markBoard(clickedBox) {
@@ -68,21 +79,21 @@ function markBoard(clickedBox) {
       //Updates playing board key with proper value
       playingBoard[mark] = 'X';
       if (playingBoard.checkForWinner()) {
-        setTimeout(() => {
-          alert('Red Team Wins!');
-        }, 0);
+        someoneWon(`The Red X's have won the game!!`, 'red-shadow');
+      } else {
+        isBlueTurn();
+        //end of red turn tree
       }
-      isBlueTurn();
     } else {
       clickedBox.classList.add('blue-o');
       document.getElementById(clickedBox.id).textContent = 'O';
       playingBoard[mark] = 'O';
       if (playingBoard.checkForWinner()) {
-        setTimeout(() => {
-          alert('Blue Team Wins!');
-        }, 0);
+        someoneWon(`The Blue O's have won the game!!`, 'blue-shadow');
+      } else {
+        isRedTurn();
+        //end of blue turn tree
       }
-      isRedTurn();
     }
   }
 }
@@ -108,4 +119,16 @@ function startGame() {
     isBlueTurn();
   }
   preGame = false;
+}
+
+function someoneWon(message, classSelect) {
+  //Disable any more clicks
+  gameArea.removeEventListener('click', clickBox);
+  //Alert which team has won
+  outcome.textContent = message;
+  outcome.className = classSelect;
+  //Make a button appear in body
+  let playAgainButton = document.createElement('button');
+  body.appendChild(playAgainButton);
+  playAgainButton.textContent = 'Play Again';
 }
